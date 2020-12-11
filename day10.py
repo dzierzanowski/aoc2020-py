@@ -6,41 +6,43 @@ if __name__ == '__main__':
         raw_data = file.read()
 
     data = raw_data.split("\n")  # Make sure there's no newline at the end of data
+    data.append(0)  # Starting point
+    data = sorted(list(map(int, data)))
+    data.append(max(data) + 3)  # Ending point
+    # print(f"{data}")
 
-    index = 25  # Starting after preamble
-    termination_index = len(data)
+    count = {
+        1: 0,
+        2: 0,
+        3: 0
+    }
 
-    faulty_index = 0
-    faulty_number = 0
+    for i in range(0, len(data) - 1):
+        diff = data[i + 1] - data[i]
+        count[diff] += 1
+        # print(f"{data[i+1]} - {data[i]} = {diff}")
 
-    while index < termination_index:
-        subset = data[index - 25:index]
-        number_at_index = int(data[index])
-        is_valid = False
-        for number in subset:
-            other = number_at_index - int(number)
-            if number != other and str(other) in subset:
-                # print(f"Found pair for {number_at_index}: {number} and {other}")
-                is_valid = True
-                break
-        if not is_valid:
-            faulty_index = index
-            faulty_number = number_at_index
-            print(f"Found fault at #{faulty_index}: {faulty_number}")
-            break
-        index += 1
+    print(f"Answer #1: {count[1] * count[3]}")
 
     # Part 2
-    index = 0
-    while index < termination_index:
-        sub_sum = int(data[index])
-        next_index = index + 1
-        while next_index < termination_index and sub_sum < faulty_number:
-            sub_sum += int(data[next_index])
-            next_index += 1
-        if sub_sum == faulty_number:
-            subset = list(map(int, data[index:next_index]))
-            low, high = min(subset), max(subset)
-            print(f"Range found between #{index} and #{next_index}: {low} and {high} sum to to {low + high}")
-            break
-        index += 1
+
+    data.reverse()
+    max_num = max(data)
+
+    # Each entry represents possible combinations for each number
+    count2 = {
+        max_num: 1
+    }
+
+    for i in range(1, len(data)):
+        num = data[i]
+        combinations = 0
+        for j in range(1, 4):
+            candidate = num + j
+            # print(f"Checking {num} + {j} = {candidate}")
+            if candidate in data:
+                # print(f"Found {candidate} in data")
+                combinations += count2[candidate]
+        count2[num] = combinations
+
+    print(f"Possible combinations: {count2[0]}")
